@@ -133,7 +133,7 @@ class JustEatCredentialsPage(QWizardPage):
             QMessageBox.critical(self, "Invalid credentials", "Please enter the correct credentials for your Just Eat account.")
             return
         elif resp.status_code == 200:
-            link_to_server(data, self.wizard().property("wii_no"), self.wizard().property("access_token"),
+            link_to_server(resp.json(), self.wizard().property("wii_no"), self.wizard().property("access_token"),
                            device_id, acr)
             # TODO for Harry: Handle any errors that come here
             self.wizard().next()
