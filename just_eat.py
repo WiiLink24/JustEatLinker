@@ -1,9 +1,18 @@
 import uuid
 
-from PySide6.QtWidgets import QWizardPage, QLabel, QVBoxLayout, QWizard, QTextEdit, QLineEdit, QPushButton, QComboBox, \
-    QMessageBox
-from PySide6.QtCore import QThread, QObject, Signal, QTimer
+from PySide6.QtWidgets import (
+    QWizardPage,
+    QLabel,
+    QVBoxLayout,
+    QWizard,
+    QLineEdit,
+    QPushButton,
+    QComboBox,
+    QMessageBox,
+)
+from PySide6.QtCore import QTimer
 from constants import devices
+from errors import JustEatDataError, JustEatLinkError, JustEat2FAError
 
 import random
 import requests
@@ -12,6 +21,7 @@ import json
 import time
 
 country = ""
+
 
 class CountrySelect(QWizardPage):
     countries = {
@@ -28,7 +38,9 @@ class CountrySelect(QWizardPage):
         global country
         super().__init__(parent)
         self.setTitle(self.tr("Select your country"))
-        self.setSubTitle(self.tr("Select the country associated with your Just Eat Account."))
+        self.setSubTitle(
+            self.tr("Select the country associated with your Just Eat Account.")
+        )
 
         box = QComboBox()
         box.addItems(list(self.countries.keys()))
@@ -43,11 +55,12 @@ class CountrySelect(QWizardPage):
         global country
         country = self.countries[text]
 
+
 def link_to_server(data, wii_number, auth, device_id, acr):
     header = {
         "Authorization": auth,
         "User-Agent": "WiiLink Just Eat Linker v0.1",
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Content-Type": "application/x-www-form-urlencoded",
     }
 
     payload = {
@@ -59,7 +72,10 @@ def link_to_server(data, wii_number, auth, device_id, acr):
         "acr": acr,
     }
 
-    return requests.post("https://just-eat.wiilink.ca/link", headers=header, data=payload)
+    return requests.post(
+        "https://just-eat.wiilink.ca/link", headers=header, data=payload
+    )
+
 
 class JustEatCredentialsPage(QWizardPage):
     has_2fa = False
@@ -67,11 +83,7 @@ class JustEatCredentialsPage(QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setTitle(self.tr("Just Eat Login"))
-        self.setSubTitle(
-            self.tr(
-                "Enter your credentials for your Just Eat Account."
-            )
-        )
+        self.setSubTitle(self.tr("Enter your credentials for your Just Eat Account."))
 
         self.username_label = QLabel("Username:")
         self.username_input = QLineEdit()
@@ -109,9 +121,20 @@ class JustEatCredentialsPage(QWizardPage):
         global country
         device_id = random.choice(devices)
 
-        resp = requests.get(f"https://just-eat.wiilink.ca/userdatalogin.json?device_id={device_id}&country={country}")
-        if resp.status_code != 200:
-            QMessageBox.critical(self, "death to wiilink", "over")
+        try:
+            resp = requests.get(
+                f"https://just-eat.wiilink.ca/userdatalogin.json?device_id={device_id}&country={country}"
+            )
+            if resp.status_code != 200:
+                raise JustEatDataError(resp.status_code)
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Failed to connect to WiiLink",
+                f"""The linker was unable to connect to WiiLink servers.
+
+Exception: {e}""",
+            )
             return
 
         # Complete the body based on the user's inputs.
@@ -121,22 +144,55 @@ class JustEatCredentialsPage(QWizardPage):
         acr_device = {
             "DeviceType": "Android",
             "DeviceName": device_id,
-            "DeviceId": str(uuid.uuid4())
+            "DeviceId": str(uuid.uuid4()),
         }
         acr = f"tenant:{country} device:{base64.b64encode(json.dumps(acr_device).encode()).decode()} deviceId:{device_id}"
         payload["acr"] = acr
         payload["username"] = self.username_input.text()
         payload["password"] = self.password_input.text()
 
-        resp = requests.post(data["url"], headers=data["header"], data=payload)
+        try:
+            resp = requests.post(data["url"], headers=data["header"], data=payload)
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Failed to connect to Just Eat",
+                f"""The linker was unable to connect to Just Eat servers.
+
+Exception: {e}""",
+            )
+            return
+
         if resp.status_code == 400 and resp.json()["error"] == "invalid_grant":
-            QMessageBox.critical(self, "Invalid credentials", "Please enter the correct credentials for your Just Eat account.")
+            QMessageBox.critical(
+                self,
+                "Invalid credentials",
+                "Please enter the correct credentials for your Just Eat account.",
+            )
             return
         elif resp.status_code == 200:
-            link_to_server(resp.json(), self.wizard().property("wii_no"), self.wizard().property("access_token"),
-                           device_id, acr)
-            # TODO for Harry: Handle any errors that come here
+            try:
+                resp = link_to_server(
+                    resp.json(),
+                    self.wizard().property("wii_no"),
+                    self.wizard().property("access_token"),
+                    device_id,
+                    acr,
+                )
+                if resp.status_code != 200:
+                    raise JustEatLinkError(resp.status_code)
+            except Exception as e:
+                QMessageBox.critical(
+                    self,
+                    "Failed to connect to WiiLink",
+                    f"""The linker was unable to connect to WiiLink servers.
+
+Exception: {e}""",
+                )
+                return
+
             self.wizard().next()
+            return
 
         data = resp.json()
         self.has_2fa = True
@@ -151,11 +207,7 @@ class JustEat2FAPage(QWizardPage):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setTitle(self.tr("Just Eat Login"))
-        self.setSubTitle(
-            self.tr(
-                "Enter the 2FA code sent to your Just Eat email"
-            )
-        )
+        self.setSubTitle(self.tr("Enter the 2FA code sent to your Just Eat email"))
 
         self.code_label = QLabel("Code:")
         self.code_input = QLineEdit()
@@ -182,9 +234,20 @@ class JustEat2FAPage(QWizardPage):
         device_id = self.wizard().property("device_id")
         other_payload = self.wizard().property("payload")
 
-        resp = requests.get(f"https://just-eat.wiilink.ca/2fadata.json?device_id={device_id}&country={country}")
-        if resp.status_code != 200:
-            QMessageBox.critical(self, "death to wiilink", "over")
+        try:
+            resp = requests.get(
+                f"https://just-eat.wiilink.ca/2fadata.json?device_id={device_id}&country={country}"
+            )
+            if resp.status_code != 200:
+                raise JustEatDataError(resp.status_code)
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Failed to connect to WiiLink",
+                f"""The linker was unable to connect to WiiLink servers.
+
+Exception: {e}""",
+            )
             return
 
         # Complete the body based on the user's inputs.
@@ -195,18 +258,42 @@ class JustEat2FAPage(QWizardPage):
         other_payload["otp"] = self.code_input.text()
 
         # Post to the 2FA endpoint.
-        resp = requests.post(data["url"], headers=data["header"], data=other_payload)
-        if resp.status_code != 200:
-            QMessageBox.critical(self, "Invalid 2FA Code", "Please enter the correct 2FA code emailed to your Just Eat email.")
+        try:
+            resp = requests.post(
+                data["url"], headers=data["header"], data=other_payload
+            )
+            if resp.status_code != 200:
+                raise JustEat2FAError(resp.status_code)
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Failed to authenticate",
+                f"""The linker was unable to authenticate with your provided 2FA code.
+
+Exception: {e}""",
+            )
             return
 
         # We now need to send the auth data to the Demae Just Eat server.
         data = resp.json()
-        resp = link_to_server(data, self.wizard().property("wii_no"), self.wizard().property("access_token"), self.wizard().property("device_id"), self.wizard().property("acr"))
+        try:
+            resp = link_to_server(
+                data,
+                self.wizard().property("wii_no"),
+                self.wizard().property("access_token"),
+                self.wizard().property("device_id"),
+                self.wizard().property("acr"),
+            )
+            if resp.status_code != 200:
+                raise JustEatLinkError(resp.status_code)
+        except Exception as e:
+            QMessageBox.critical(
+                self,
+                "Failed to connect to WiiLink",
+                f"""The linker was unable to connect to WiiLink servers.
 
-        if resp.status_code != 200:
-            data = resp.json()
-            QMessageBox.critical(self, "An error has occurred", data["message"])
+        Exception: {e}""",
+            )
             return
 
         self.wizard().next()

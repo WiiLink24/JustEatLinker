@@ -1,0 +1,22 @@
+# Executables by Nuitka
+*.bin
+*.exe
+*.app
+JustEatLinker
+
+# Compiled translations
+*.qm
+
+# Nuitka build directories
+JustEatLinker.build/
+JustEatLinker.dist/
+JustEatLinker.onefile-build/
+
+# Python directories
+.venv/
+__pycache__/
+
+# Jetbrains IDE settings
+.idea/
+
+.vscode/

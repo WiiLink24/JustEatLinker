@@ -1,2 +1,5 @@
 requests
 PySide6
+black
+nuitka
+imageio

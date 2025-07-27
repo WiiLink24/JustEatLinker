@@ -1,4 +1,6 @@
+import pathlib
 
+file_path = pathlib.Path(__file__).parent
 
 devices = [
     "SM-F946B",
@@ -214,5 +216,5 @@ devices = [
     "SM-S926W",
     "SM-S926N",
     "SM-S926H",
-    "SM-S926C"
+    "SM-S926C",
 ]
