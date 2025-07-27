@@ -1,0 +1,9 @@
+[project]
+name = "JustEatLinker"
+
+[tool.pyside6-project]
+files = [
+    "JustEatLinker.py",
+    "just_eat.py",
+    "oauth.py"
+]
