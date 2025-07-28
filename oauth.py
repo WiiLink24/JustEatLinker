@@ -1,6 +1,6 @@
 import time
 import sys
-import requests
+from curl_cffi import requests
 from errors import VerificationURLError, TokenHTTPError, AttributeRetrievalError
 from PySide6.QtWidgets import (
     QWizardPage,
@@ -211,6 +211,8 @@ Then, run this app again."""
             self.layout.addWidget(label)
             self.setLayout(self.layout)
             return
+
+        print(resp["attributes"])
 
         self.wii_nos = resp["attributes"]["wiis"]
         box = QComboBox()

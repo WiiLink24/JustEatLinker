@@ -15,7 +15,7 @@ from constants import devices
 from errors import JustEatDataError, JustEatLinkError, JustEat2FAError
 
 import random
-import requests
+from curl_cffi import requests
 import base64
 import json
 import time
@@ -152,7 +152,7 @@ Exception: {e}""",
         payload["password"] = self.password_input.text()
 
         try:
-            resp = requests.post(data["url"], headers=data["header"], data=payload)
+            resp = requests.post(data["url"], headers=data["header"], data=payload, impersonate="safari17_0")
         except Exception as e:
             QMessageBox.critical(
                 self,
@@ -179,6 +179,7 @@ Exception: {e}""",
                     device_id,
                     acr,
                 )
+                print(resp.content)
                 if resp.status_code != 200:
                     raise JustEatLinkError(resp.status_code)
             except Exception as e:
@@ -260,7 +261,7 @@ Exception: {e}""",
         # Post to the 2FA endpoint.
         try:
             resp = requests.post(
-                data["url"], headers=data["header"], data=other_payload
+                data["url"], headers=data["header"], data=other_payload, impersonate="safari17_0"
             )
             if resp.status_code != 200:
                 raise JustEat2FAError(resp.status_code)

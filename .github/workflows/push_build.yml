@@ -1,7 +1,7 @@
 # Using code with permission from ".github/workflows/python-build.yml" from NUSGet by NinjaCheetah
 # https://github.com/NinjaCheetah/NUSGet
 
-name: Build Patcher
+name: Build Linker
 
 on:
   [push, pull_request]
