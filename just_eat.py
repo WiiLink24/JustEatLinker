@@ -152,7 +152,12 @@ Exception: {e}""",
         payload["password"] = self.password_input.text()
 
         try:
-            resp = requests.post(data["url"], headers=data["header"], data=payload, impersonate="safari17_0")
+            resp = requests.post(
+                data["url"],
+                headers=data["header"],
+                data=payload,
+                impersonate="safari17_0",
+            )
         except Exception as e:
             QMessageBox.critical(
                 self,
@@ -261,7 +266,10 @@ Exception: {e}""",
         # Post to the 2FA endpoint.
         try:
             resp = requests.post(
-                data["url"], headers=data["header"], data=other_payload, impersonate="safari17_0"
+                data["url"],
+                headers=data["header"],
+                data=other_payload,
+                impersonate="safari17_0",
             )
             if resp.status_code != 200:
                 raise JustEat2FAError(resp.status_code)

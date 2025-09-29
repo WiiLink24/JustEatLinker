@@ -82,14 +82,24 @@ Exception: {e}""",
         self.setTitle(self.tr("Login to your WiiLink Account"))
         self.setSubTitle(self.tr("Login with your browser"))
 
-        self.link = QLabel(self.tr(f"Visit <a href='{data["verification_uri"]}?code={data["user_code"]}'>{data['verification_uri']}</a> and enter the code below:</br></br>"))
+        self.link = QLabel(
+            self.tr(
+                f"Visit <a href='{data["verification_uri"]}?code={data["user_code"]}'>{data['verification_uri']}</a> and enter the code below:</br></br>"
+            )
+        )
         self.link.setWordWrap(True)
         self.link.setOpenExternalLinks(True)
 
-        self.code = QLabel(self.tr(f"<h1 style='text-align: center;'>{data["user_code"]}</h1></br></br>"))
+        self.code = QLabel(
+            self.tr(
+                f"<h1 style='text-align: center;'>{data["user_code"]}</h1></br></br>"
+            )
+        )
         self.code.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
 
-        self.success = QLabel(self.tr("Upon success you will be redirected to the next page."))
+        self.success = QLabel(
+            self.tr("Upon success you will be redirected to the next page.")
+        )
 
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.link)
