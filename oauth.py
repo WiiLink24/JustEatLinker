@@ -82,19 +82,19 @@ Exception: {e}""",
         self.setTitle(self.tr("Login to your WiiLink Account"))
         self.setSubTitle(self.tr("Login with your browser"))
 
-        self.label = QLabel(
-            self.tr(
-                f"""Visit <a href="{data['verification_uri']}">{data['verification_uri']}</a> and enter the code below:</br></br>
+        self.link = QLabel(self.tr(f"Visit <a href='{data["verification_uri"]}?code={data["user_code"]}'>{data['verification_uri']}</a> and enter the code below:</br></br>"))
+        self.link.setWordWrap(True)
+        self.link.setOpenExternalLinks(True)
 
-<h1 style='text-align: center;'>{data["user_code"]}</h1></br></br>
+        self.code = QLabel(self.tr(f"<h1 style='text-align: center;'>{data["user_code"]}</h1></br></br>"))
+        self.code.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
 
-Upon success you will be redirected to the next page."""
-            )
-        )
-        self.label.setWordWrap(True)
-        self.label.setOpenExternalLinks(True)
+        self.success = QLabel(self.tr("Upon success you will be redirected to the next page."))
+
         self.layout = QVBoxLayout()
-        self.layout.addWidget(self.label)
+        self.layout.addWidget(self.link)
+        self.layout.addWidget(self.code)
+        self.layout.addWidget(self.success)
         self.setLayout(self.layout)
 
         self.logic_thread = QThread()
