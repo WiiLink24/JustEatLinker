@@ -165,8 +165,8 @@ class AccountConnector(QObject):
 
 
 class WiiNumberSelector(QWizardPage):
-    wii_nos: list[str] = []
     linked: bool = True
+    wii_no_dict = {}
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -204,7 +204,7 @@ Exception: {e}""",
 
         resp = resp.json()
 
-        if resp["attributes"] == {}:
+        if "wiis" not in resp["attributes"]:
             self.linked = False
             label = QLabel(
                 self.tr(
@@ -222,13 +222,18 @@ Then, run this app again."""
             self.setLayout(self.layout)
             return
 
-        print(resp["attributes"])
+        wii_nos = resp["attributes"]["wiis"]
+        for number in wii_nos:
+            wii_no_str = "{:016}".format(int(number))
+            wii_no_str = "{}-{}-{}-{}".format(
+                wii_no_str[:4], wii_no_str[4:8], wii_no_str[8:12], wii_no_str[12:16]
+            )
+            self.wii_no_dict.update({wii_no_str: number})
 
-        self.wii_nos = resp["attributes"]["wiis"]
         box = QComboBox()
-        box.addItems(self.wii_nos)
+        box.addItems(self.wii_no_dict.keys())
         box.currentTextChanged.connect(self.number_changed)
-        self.wizard().setProperty("wii_no", self.wii_nos[0])
+        self.wizard().setProperty("wii_no", wii_nos[0])
 
         self.layout.addWidget(box)
         self.setLayout(self.layout)
@@ -237,18 +242,11 @@ Then, run this app again."""
         # Needed to keep back button disabled when navigating back to page
         # Thank you Qt, this is very logical
         QTimer.singleShot(0, self.disable_back_button)
-        if self.wii_nos and self.linked:
-            return True
 
-        if not self.linked:
-            return False
-
-        # If the wii_nos list is empty, we were unable to retrieve
-        # Wii numbers, and thus the app cannot continue
-        sys.exit(1)
+        return self.linked
 
     def number_changed(self, number):
-        self.wizard().setProperty("wii_no", number)
+        self.wizard().setProperty("wii_no", wii_no_dict[number])
 
     def disable_back_button(self):
         self.wizard().button(QWizard.WizardButton.BackButton).setEnabled(False)
