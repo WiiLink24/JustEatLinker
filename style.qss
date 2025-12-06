@@ -3,6 +3,11 @@ About {
     color: #ffffff;
 }
 
+LanguageSelector {
+    background-color: #222222;
+    color: #ffffff;
+}
+
 QLabel {
     color: #ffffff;
 }
@@ -249,6 +254,12 @@ QComboBox::drop-down {
     border-bottom-right-radius: 8px;
 }
 
+QComboBox QListView {
+    font-size: 13px;
+    font-weight: 500;
+    color: #ffffff;
+}
+
 QComboBox::down-arrow {
     image: url(%AssetsDir%/dropdown_arrow.svg);
     width: 12px;
@@ -353,4 +364,15 @@ QTextEdit#console {
     padding: 8px;
     font-family: "Courier New", monospace;
     font-size: 13px;
+}
+
+QLineEdit {
+    background-color: transparent;
+    border: 1px solid rgba(70, 70, 70, 1);
+    border-radius: 8px;
+    padding: 6px 10px;
+    margin: 4px 0px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #ffffff;
 }
