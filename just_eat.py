@@ -1,4 +1,5 @@
 import uuid
+import webbrowser
 
 from PySide6.QtWidgets import (
     QWizardPage,
@@ -10,7 +11,8 @@ from PySide6.QtWidgets import (
     QComboBox,
     QMessageBox,
 )
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Qt
+from PySide6.QtGui import QFont
 from constants import devices
 from errors import JustEatDataError, JustEatLinkError, JustEat2FAError
 
@@ -27,7 +29,6 @@ class CountrySelect(QWizardPage):
     countries = {
         "United Kingdom": "UK",
         "Italy": "IT",
-        "Australia": "AU",
         "Austria": "AT",
         "Germany": "DE",
         "Ireland": "IE",
@@ -80,6 +81,7 @@ def link_to_server(data, wii_number, auth, device_id, acr):
 class JustEatCredentialsPage(QWizardPage):
     has_2fa = False
 
+    # noinspection PyPackageRequirements
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setTitle(self.tr("Just Eat Login"))
@@ -94,6 +96,15 @@ class JustEatCredentialsPage(QWizardPage):
         self.password_input.setPlaceholderText("Enter your password")
         self.password_input.setEchoMode(QLineEdit.Password)
 
+        self.reset_password_button = QLabel(self.tr("Reset Password..."))
+        font = QFont()
+        font.setUnderline(True)
+        self.reset_password_button.setFont(font)
+        self.reset_password_button.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.reset_password_button.setStyleSheet("color: #606060;")
+        self.reset_password_button.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.reset_password_button.mousePressEvent = self.reset_password
+
         self.login_button = QPushButton("Login")
         self.login_button.clicked.connect(self.handle_login)
 
@@ -102,10 +113,18 @@ class JustEatCredentialsPage(QWizardPage):
         self.layout.addWidget(self.username_input)
         self.layout.addWidget(self.password_label)
         self.layout.addWidget(self.password_input)
+        self.layout.addWidget(self.reset_password_button)
         self.layout.addWidget(self.login_button)
         self.setLayout(self.layout)
 
     def initializePage(self):
+        global country
+
+        if country == "AT" or country == "DE":
+            self.reset_password_button.setVisible(False)
+        else:
+            self.reset_password_button.setVisible(True)
+
         QTimer.singleShot(0, self.disable_next_button)
 
     def disable_next_button(self):
@@ -116,6 +135,22 @@ class JustEatCredentialsPage(QWizardPage):
             return 5
 
         return 6
+
+    def reset_password(self, event=None):
+        global country
+        match country:
+            case "UK":
+                domain = "https://www.just-eat.co.uk"
+            case "IT":
+                domain = "https://www.justeat.it"
+            case "IE":
+                domain = "https://www.just-eat.ie"
+            case "ES":
+                domain = "https://www.just-eat.es"
+            case _:
+                domain = ""
+
+        webbrowser.open(f"{domain}/account/reset-password")
 
     def handle_login(self):
         global country

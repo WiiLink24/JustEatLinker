@@ -71,7 +71,7 @@ class FinalPage(QWizardPage):
         )
         self.label = QLabel(
             self.tr(
-                f"""Your Just Eat account has successfully been linked to the Wii with number <strong>{self.wizard().property("wii_no")}</strong>.</br></br>
+                f"""Your Just Eat account has successfully been linked to the Wii with number <strong>{self.wizard().property("wii_no_fancy")}</strong>.</br></br>
 
 Enjoy ordering food on your Wii!"""
             )

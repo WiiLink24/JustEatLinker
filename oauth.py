@@ -247,6 +247,7 @@ Then, run this app again."""
 
     def number_changed(self, number):
         self.wizard().setProperty("wii_no", wii_no_dict[number])
+        self.wizard().setProperty("wii_no_fancy", number)
 
     def disable_back_button(self):
         self.wizard().button(QWizard.WizardButton.BackButton).setEnabled(False)
