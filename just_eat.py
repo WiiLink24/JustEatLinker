@@ -1,5 +1,5 @@
+import traceback
 import uuid
-import webbrowser
 
 from PySide6.QtWidgets import (
     QWizardPage,
@@ -14,7 +14,7 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont
 from constants import devices
-from errors import JustEatDataError, JustEatLinkError, JustEat2FAError
+from errors import JustEatDataError, JustEatLinkError, JustEat2FAError, JustEatResetError
 
 import random
 from curl_cffi import requests
@@ -118,13 +118,6 @@ class JustEatCredentialsPage(QWizardPage):
         self.setLayout(self.layout)
 
     def initializePage(self):
-        global country
-
-        if country == "AT" or country == "DE":
-            self.reset_password_button.setVisible(False)
-        else:
-            self.reset_password_button.setVisible(True)
-
         QTimer.singleShot(0, self.disable_next_button)
 
     def disable_next_button(self):
@@ -138,19 +131,58 @@ class JustEatCredentialsPage(QWizardPage):
 
     def reset_password(self, event=None):
         global country
-        match country:
-            case "UK":
-                domain = "https://www.just-eat.co.uk"
-            case "IT":
-                domain = "https://www.justeat.it"
-            case "IE":
-                domain = "https://www.just-eat.ie"
-            case "ES":
-                domain = "https://www.just-eat.es"
-            case _:
-                domain = ""
+        device_id = random.choice(devices)
 
-        webbrowser.open(f"{domain}/account/reset-password")
+        try:
+            resp = requests.get(
+                f"https://just-eat.wiilink.ca/resetdata.json?device_id={device_id}&country={country}"
+            )
+            if resp.status_code != 200:
+                raise JustEatDataError(resp.status_code)
+        except:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
+            QMessageBox.critical(
+                self,
+                "Failed to connect to WiiLink",
+                f"""The linker was unable to connect to WiiLink servers.
+
+{exception_traceback}""",
+            )
+            return
+
+        data = resp.json()
+        payload = {
+            "EmailAddress": self.username_input.text(),
+        }
+
+        try:
+            resp = requests.post(
+                data["url"],
+                headers=data["header"],
+                data=json.dumps(payload),
+                impersonate="safari17_0",
+            )
+            if resp.status_code != 201:
+                raise JustEatResetError(resp)
+        except:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
+            QMessageBox.critical(
+                self,
+                "Failed to reset password",
+                f"""The linker was unable to connect to Just Eat servers.
+
+{exception_traceback}""",
+            )
+            return
+
+        QMessageBox.information(
+            self,
+            "Successfully reset password",
+            f"If there is a Just Eat account associated with <b>{self.username_input.text()}</b>, you will receive an email from Just Eat to reset your password."
+        )
+
 
     def handle_login(self):
         global country

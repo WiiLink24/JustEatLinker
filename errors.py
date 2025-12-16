@@ -1,3 +1,5 @@
+from curl_cffi import Response
+
 class VerificationURLError(Exception):
     def __init__(self, status: int):
         super().__init__(
@@ -33,4 +35,12 @@ class JustEat2FAError(Exception):
     def __init__(self, status: int):
         super().__init__(
             f"Received status code {status}. Make sure to enter the correct 2FA code."
+        )
+
+
+class JustEatResetError(Exception):
+    def __init__(self, resp: Response):
+        super().__init__(
+            f"""Received status code {resp.status_code}.
+Message: {resp.text}"""
         )
