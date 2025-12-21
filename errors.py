@@ -1,5 +1,6 @@
 from curl_cffi import Response
 
+
 class VerificationURLError(Exception):
     def __init__(self, status: int):
         super().__init__(

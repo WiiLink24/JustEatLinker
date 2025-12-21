@@ -2,6 +2,8 @@ import pathlib
 
 file_path = pathlib.Path(__file__).parent
 
+linker_version = "1.0.0 Nightly"
+
 devices = [
     "SM-F946B",
     "SM-F936B",

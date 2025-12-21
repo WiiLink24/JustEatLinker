@@ -14,7 +14,12 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont
 from constants import devices
-from errors import JustEatDataError, JustEatLinkError, JustEat2FAError, JustEatResetError
+from errors import (
+    JustEatDataError,
+    JustEatLinkError,
+    JustEat2FAError,
+    JustEatResetError,
+)
 
 import random
 from curl_cffi import requests
@@ -180,9 +185,8 @@ class JustEatCredentialsPage(QWizardPage):
         QMessageBox.information(
             self,
             "Successfully reset password",
-            f"If there is a Just Eat account associated with <b>{self.username_input.text()}</b>, you will receive an email from Just Eat to reset your password."
+            f"If there is a Just Eat account associated with <b>{self.username_input.text()}</b>, you will receive an email from Just Eat to reset your password.",
         )
-
 
     def handle_login(self):
         global country
