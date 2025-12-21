@@ -74,7 +74,7 @@ jobs:
 
   build-macos-x64:
 
-    runs-on: macos-13
+    runs-on: macos-15-intel
 
     steps:
       - uses: actions/checkout@v4
@@ -147,8 +147,8 @@ jobs:
     - name: Upload Onefile Package
       uses: actions/upload-artifact@v4
       with:
-        path: .\WiiLinkPatcherGUI.exe
-        name: WiiLinkPatcherGUI-Windows-onefile-x64
+        path: .\JustEatLinker.exe
+        name: JustEatLinker-Windows-onefile-x64
 
   build-windows-x64:
 
@@ -171,5 +171,5 @@ jobs:
     - name: Upload Standalone Package
       uses: actions/upload-artifact@v4
       with:
-        path: .\WiiLinkPatcherGUI.dist
-        name: WiiLinkPatcherGUI-Windows-x64
+        path: .\JustEatLinker.dist
+        name: JustEatLinker-Windows-x64
