@@ -1,7 +1,11 @@
 import time
 import sys
+import traceback
+
 from curl_cffi import requests
-from errors import VerificationURLError, TokenHTTPError, AttributeRetrievalError
+from curl_cffi.requests.exceptions import HTTPError
+
+from constants import linker_version
 from PySide6.QtWidgets import (
     QWizardPage,
     QLabel,
@@ -13,26 +17,6 @@ from PySide6.QtWidgets import (
 from PySide6.QtCore import QThread, QObject, Signal, QTimer, Qt
 
 access_token = ""
-
-
-def get_verification_url():
-    data = {
-        "client_id": "ChGKaNcTcArxLCWSxAbvXXtbWKsM1xcy6x7k8ssn",
-        "scope": "openid email profile goauthentik.io/api",
-    }
-
-    headers = {
-        "User-Agent": "WiiLink Just Eat Linker v0.1",
-        "Content-Type": "application/x-www-form-urlencoded",
-    }
-
-    resp = requests.post(
-        "https://sso.riiconnect24.net/application/o/device/", headers=headers, data=data
-    )
-    if resp.status_code != 200:
-        raise VerificationURLError(resp.status_code)
-
-    return resp.json()
 
 
 def get_token(device_code: str):
@@ -65,17 +49,8 @@ class WiiLinkAccountPage(QWizardPage):
         super().__init__(parent)
 
         # Get the device code
-        try:
-            data = get_verification_url()
-        except Exception as e:
-            QMessageBox.critical(
-                self,
-                "Failed to connect to WiiLink",
-                f"""The linker was unable to connect to WiiLink servers.
+        data = self.get_verification_url()
 
-Exception: {e}""",
-            )
-            sys.exit(1)
         self.interval = data["interval"]
         self.device_code = data["device_code"]
 
@@ -142,6 +117,48 @@ Exception: {e}""",
     def disable_next_button(self):
         self.wizard().button(QWizard.WizardButton.NextButton).setEnabled(False)
 
+    def get_verification_url(self):
+        data = {
+            "client_id": "ChGKaNcTcArxLCWSxAbvXXtbWKsM1xcy6x7k8ssn",
+            "scope": "openid email profile goauthentik.io/api",
+        }
+
+        headers = {
+            "User-Agent": f"WiiLink Just Eat Linker v{linker_version}",
+            "Content-Type": "application/x-www-form-urlencoded",
+        }
+
+        try:
+            resp = requests.post(
+                "https://sso.riiconnect24.net/application/o/device/", headers=headers, data=data
+            )
+            resp.raise_for_status()
+        except HTTPError:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
+            QMessageBox.critical(
+                self,
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to connect to WiiLink servers.
+
+    Received status code {resp.status_code}.
+    Message: {resp.text}""",
+            )
+            sys.exit(1)
+        except:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
+            QMessageBox.critical(
+                self,
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to connect to WiiLink servers.
+
+    {exception_traceback}""",
+            )
+            sys.exit(1)
+
+        return resp.json()
+
 
 class AccountConnector(QObject):
     finished = Signal(bool)
@@ -190,15 +207,26 @@ class WiiNumberSelector(QWizardPage):
             resp = requests.get(
                 "https://accounts.wiilink.ca/link/user", headers=this_headers
             )
-            if resp.status_code != 200:
-                raise AttributeRetrievalError(resp.status_code)
-        except Exception as e:
+            resp.raise_for_status()
+        except HTTPError:
             QMessageBox.critical(
                 self,
-                "Failed to connect to WiiLink",
-                f"""The linker was unable to connect to WiiLink servers.
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to get your linked consoles.
 
-Exception: {e}""",
+Received status code {resp.status_code}.
+Message: {resp.text}""",
+            )
+            return
+        except:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
+            QMessageBox.critical(
+                self,
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to get your linked consoles.
+
+{exception_traceback}""",
             )
             return
 
@@ -246,7 +274,7 @@ Then, run this app again."""
         return self.linked
 
     def number_changed(self, number):
-        self.wizard().setProperty("wii_no", wii_no_dict[number])
+        self.wizard().setProperty("wii_no", self.wii_no_dict[number])
         self.wizard().setProperty("wii_no_fancy", number)
 
     def disable_back_button(self):

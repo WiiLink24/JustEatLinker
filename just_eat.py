@@ -13,16 +13,11 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont
+from curl_cffi import requests
+from curl_cffi.requests.exceptions import HTTPError
 from constants import devices
-from errors import (
-    JustEatDataError,
-    JustEatLinkError,
-    JustEat2FAError,
-    JustEatResetError,
-)
 
 import random
-from curl_cffi import requests
 import base64
 import json
 import time
@@ -99,7 +94,7 @@ class JustEatCredentialsPage(QWizardPage):
         self.password_label = QLabel("Password:")
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Enter your password")
-        self.password_input.setEchoMode(QLineEdit.Password)
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
 
         self.reset_password_button = QLabel(self.tr("Reset Password..."))
         font = QFont()
@@ -142,15 +137,26 @@ class JustEatCredentialsPage(QWizardPage):
             resp = requests.get(
                 f"https://just-eat.wiilink.ca/resetdata.json?device_id={device_id}&country={country}"
             )
-            if resp.status_code != 200:
-                raise JustEatDataError(resp.status_code)
+            resp.raise_for_status()
+        except HTTPError:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
+            QMessageBox.critical(
+                self,
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to get password reset information from WiiLink servers.
+
+Received status code {resp.status_code}.
+Response: {resp.text}""",
+            )
+            return
         except:
             exception_traceback = traceback.format_exc()
             print(exception_traceback)
             QMessageBox.critical(
                 self,
-                "Failed to connect to WiiLink",
-                f"""The linker was unable to connect to WiiLink servers.
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to get password reset information from WiiLink servers.
 
 {exception_traceback}""",
             )
@@ -168,15 +174,26 @@ class JustEatCredentialsPage(QWizardPage):
                 data=json.dumps(payload),
                 impersonate="safari17_0",
             )
-            if resp.status_code != 201:
-                raise JustEatResetError(resp)
+            resp.raise_for_status()
+        except HTTPError:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
+            QMessageBox.critical(
+                self,
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to request the password reset.
+
+Received status code {resp.status_code}.
+Response: {resp.text}""",
+            )
+            return
         except:
             exception_traceback = traceback.format_exc()
             print(exception_traceback)
             QMessageBox.critical(
                 self,
-                "Failed to reset password",
-                f"""The linker was unable to connect to Just Eat servers.
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to request the password reset.
 
 {exception_traceback}""",
             )
@@ -196,15 +213,28 @@ class JustEatCredentialsPage(QWizardPage):
             resp = requests.get(
                 f"https://just-eat.wiilink.ca/userdatalogin.json?device_id={device_id}&country={country}"
             )
-            if resp.status_code != 200:
-                raise JustEatDataError(resp.status_code)
-        except Exception as e:
+            resp.raise_for_status()
+        except HTTPError:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
             QMessageBox.critical(
                 self,
-                "Failed to connect to WiiLink",
-                f"""The linker was unable to connect to WiiLink servers.
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to get login information from WiiLink servers.
 
-Exception: {e}""",
+Received status code {resp.status_code}.
+Response: {resp.text}""",
+            )
+            return
+        except:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
+            QMessageBox.critical(
+                self,
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to get login information from WiiLink servers.
+
+{exception_traceback}""",
             )
             return
 
@@ -229,20 +259,22 @@ Exception: {e}""",
                 data=payload,
                 impersonate="safari17_0",
             )
-        except Exception as e:
+        except:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
             QMessageBox.critical(
                 self,
-                "Failed to connect to Just Eat",
-                f"""The linker was unable to connect to Just Eat servers.
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to login to your account.
 
-Exception: {e}""",
+{exception_traceback}""",
             )
             return
 
         if resp.status_code == 400 and resp.json()["error"] == "invalid_grant":
             QMessageBox.critical(
                 self,
-                "Invalid credentials",
+                "WiiLink Just Eat Linker - Warning",
                 "Please enter the correct credentials for your Just Eat account.",
             )
             return
@@ -255,29 +287,50 @@ Exception: {e}""",
                     device_id,
                     acr,
                 )
-                print(resp.content)
-                if resp.status_code != 200:
-                    raise JustEatLinkError(resp.status_code)
-            except Exception as e:
+                resp.raise_for_status()
+            except HTTPError:
+                exception_traceback = traceback.format_exc()
+                print(exception_traceback)
                 QMessageBox.critical(
                     self,
-                    "Failed to connect to WiiLink",
-                    f"""The linker was unable to connect to WiiLink servers.
+                    "WiiLink Just Eat Linker - Error",
+                    f"""The linker was unable to link your Just Eat account to your WiiLink account.
 
-Exception: {e}""",
+Received status code {resp.status_code}.
+Response: {resp.text}""",
+                )
+                return
+            except:
+                exception_traceback = traceback.format_exc()
+                print(exception_traceback)
+                QMessageBox.critical(
+                    self,
+                    "WiiLink Just Eat Linker - Error",
+                    f"""The linker was unable to link your Just Eat account to your WiiLink account.
+
+{exception_traceback}""",
                 )
                 return
 
             self.wizard().next()
             return
+        elif resp.status_code == 403 and resp.json()["error"] == "mfa_required":
+            data = resp.json()
+            self.has_2fa = True
+            self.wizard().setProperty("mfa_token", data["mfa_token"])
+            self.wizard().setProperty("device_id", device_id)
+            self.wizard().setProperty("payload", payload)
+            self.wizard().setProperty("acr", acr)
+            self.wizard().next()
+        else:
+            QMessageBox.critical(
+                self,
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to login to your account.
 
-        data = resp.json()
-        self.has_2fa = True
-        self.wizard().setProperty("mfa_token", data["mfa_token"])
-        self.wizard().setProperty("device_id", device_id)
-        self.wizard().setProperty("payload", payload)
-        self.wizard().setProperty("acr", acr)
-        self.wizard().next()
+Received status code {resp.status_code}.
+Response: {resp.text}""",
+            )
 
 
 class JustEat2FAPage(QWizardPage):
@@ -300,9 +353,10 @@ class JustEat2FAPage(QWizardPage):
         self.setLayout(self.layout)
 
     def initializePage(self):
-        QTimer.singleShot(0, self.disable_next_button)
+        QTimer.singleShot(0, self.disable_buttons)
 
-    def disable_next_button(self):
+    def disable_buttons(self):
+        self.wizard().button(QWizard.WizardButton.BackButton).setEnabled(False)
         self.wizard().button(QWizard.WizardButton.NextButton).setEnabled(False)
 
     def handle_login(self):
@@ -315,15 +369,28 @@ class JustEat2FAPage(QWizardPage):
             resp = requests.get(
                 f"https://just-eat.wiilink.ca/2fadata.json?device_id={device_id}&country={country}"
             )
-            if resp.status_code != 200:
-                raise JustEatDataError(resp.status_code)
-        except Exception as e:
+            resp.raise_for_status()
+        except HTTPError:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
             QMessageBox.critical(
                 self,
-                "Failed to connect to WiiLink",
+                "WiiLink Just Eat Linker - Error",
                 f"""The linker was unable to connect to WiiLink servers.
 
-Exception: {e}""",
+Received status code {resp.status_code}.
+Message: {resp.text}""",
+            )
+            return
+        except:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
+            QMessageBox.critical(
+                self,
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to connect to WiiLink servers.
+
+{exception_traceback}""",
             )
             return
 
@@ -342,15 +409,28 @@ Exception: {e}""",
                 data=other_payload,
                 impersonate="safari17_0",
             )
-            if resp.status_code != 200:
-                raise JustEat2FAError(resp.status_code)
-        except Exception as e:
+            resp.raise_for_status()
+        except HTTPError:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
             QMessageBox.critical(
                 self,
-                "Failed to authenticate",
+                "WiiLink Just Eat Linker - Error",
                 f"""The linker was unable to authenticate with your provided 2FA code.
 
-Exception: {e}""",
+Received status code {resp.status_code}.
+Message: {resp.text}""",
+            )
+            return
+        except:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
+            QMessageBox.critical(
+                self,
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to authenticate with your provided 2FA code.
+
+{exception_traceback}""",
             )
             return
 
@@ -364,15 +444,28 @@ Exception: {e}""",
                 self.wizard().property("device_id"),
                 self.wizard().property("acr"),
             )
-            if resp.status_code != 200:
-                raise JustEatLinkError(resp.status_code)
-        except Exception as e:
+            resp.raise_for_status()
+        except HTTPError:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
             QMessageBox.critical(
                 self,
-                "Failed to connect to WiiLink",
-                f"""The linker was unable to connect to WiiLink servers.
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to link your Just Eat account to your WiiLink account.
 
-        Exception: {e}""",
+Received status code {resp.status_code}.
+Message: {resp.text}""",
+            )
+            return
+        except:
+            exception_traceback = traceback.format_exc()
+            print(exception_traceback)
+            QMessageBox.critical(
+                self,
+                "WiiLink Just Eat Linker - Error",
+                f"""The linker was unable to link your Just Eat account to your WiiLink account.
+
+{exception_traceback}""",
             )
             return
 
