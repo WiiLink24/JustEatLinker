@@ -59,16 +59,14 @@ class WiiLinkAccountPage(QWizardPage):
 
         self.link = QLabel(
             self.tr(
-                f"Visit <a href='{data["verification_uri"]}?code={data["user_code"]}'>{data['verification_uri']}</a> and enter the code below:</br></br>"
-            )
+                "Visit <a href='{}?code={}'>{}</a> and enter the code below:</br></br>"
+            ).format(data["verification_uri"], data["user_code"], data['verification_uri'])
         )
         self.link.setWordWrap(True)
         self.link.setOpenExternalLinks(True)
 
         self.code = QLabel(
-            self.tr(
-                f"<h1 style='text-align: center;'>{data["user_code"]}</h1></br></br>"
-            )
+            f"<h1 style='text-align: center;'>{data["user_code"]}</h1></br></br>"
         )
         self.code.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
 
