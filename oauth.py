@@ -124,7 +124,7 @@ class WiiLinkAccountPage(QWizardPage):
         }
 
         headers = {
-            "User-Agent": f"WiiLink Just Eat Linker v{linker_version}",
+            "User-Agent": f"WiiLink Just Eat Linker {linker_version}",
             "Content-Type": "application/x-www-form-urlencoded",
         }
 
@@ -143,8 +143,8 @@ class WiiLinkAccountPage(QWizardPage):
                 "WiiLink Just Eat Linker - Error",
                 f"""The linker was unable to connect to WiiLink servers.
 
-    Received status code {resp.status_code}.
-    Message: {resp.text}""",
+Received status code {resp.status_code}.
+Message: {resp.text}""",
             )
             sys.exit(1)
         except:
@@ -155,7 +155,7 @@ class WiiLinkAccountPage(QWizardPage):
                 "WiiLink Just Eat Linker - Error",
                 f"""The linker was unable to connect to WiiLink servers.
 
-    {exception_traceback}""",
+{exception_traceback}""",
             )
             sys.exit(1)
 

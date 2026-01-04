@@ -87,13 +87,13 @@ class JustEatCredentialsPage(QWizardPage):
         self.setTitle(self.tr("Just Eat Login"))
         self.setSubTitle(self.tr("Enter your credentials for your Just Eat Account."))
 
-        self.username_label = QLabel("Username:")
+        self.username_label = QLabel(self.tr("Username:"))
         self.username_input = QLineEdit()
-        self.username_input.setPlaceholderText("Enter your username")
+        self.username_input.setPlaceholderText(self.tr("Username..."))
 
-        self.password_label = QLabel("Password:")
+        self.password_label = QLabel(self.tr("Password:"))
         self.password_input = QLineEdit()
-        self.password_input.setPlaceholderText("Enter your password")
+        self.password_input.setPlaceholderText(self.tr("Password..."))
         self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
 
         self.reset_password_button = QLabel(self.tr("Reset Password..."))
@@ -105,7 +105,7 @@ class JustEatCredentialsPage(QWizardPage):
         self.reset_password_button.setCursor(Qt.CursorShape.PointingHandCursor)
         self.reset_password_button.mousePressEvent = self.reset_password
 
-        self.login_button = QPushButton("Login")
+        self.login_button = QPushButton(self.tr("Login"))
         self.login_button.clicked.connect(self.handle_login)
 
         self.layout = QVBoxLayout()
@@ -339,11 +339,11 @@ class JustEat2FAPage(QWizardPage):
         self.setTitle(self.tr("Just Eat Login"))
         self.setSubTitle(self.tr("Enter the 2FA code sent to your Just Eat email"))
 
-        self.code_label = QLabel("Code:")
+        self.code_label = QLabel(self.tr("Code:"))
         self.code_input = QLineEdit()
-        self.code_input.setPlaceholderText("Enter your code")
+        self.code_input.setPlaceholderText(self.tr("Code..."))
 
-        self.login_button = QPushButton("Login")
+        self.login_button = QPushButton(self.tr("Login"))
         self.login_button.clicked.connect(self.handle_login)
 
         self.layout = QVBoxLayout()
