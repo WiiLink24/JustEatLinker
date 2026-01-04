@@ -130,7 +130,9 @@ class WiiLinkAccountPage(QWizardPage):
 
         try:
             resp = requests.post(
-                "https://sso.riiconnect24.net/application/o/device/", headers=headers, data=data
+                "https://sso.riiconnect24.net/application/o/device/",
+                headers=headers,
+                data=data,
             )
             resp.raise_for_status()
         except HTTPError:
