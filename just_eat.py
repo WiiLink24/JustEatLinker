@@ -15,7 +15,7 @@ from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont
 from curl_cffi import requests
 from curl_cffi.requests.exceptions import HTTPError
-from constants import devices
+from constants import devices, linker_version
 
 import random
 import base64
@@ -60,7 +60,7 @@ class CountrySelect(QWizardPage):
 def link_to_server(data, wii_number, auth, device_id, acr):
     header = {
         "Authorization": auth,
-        "User-Agent": "WiiLink Just Eat Linker v0.1",
+        "User-Agent": f"WiiLink Just Eat Linker {linker_version}",
         "Content-Type": "application/x-www-form-urlencoded",
     }
 

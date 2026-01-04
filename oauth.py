@@ -27,7 +27,7 @@ def get_token(device_code: str):
     }
 
     headers = {
-        "User-Agent": "WiiLink Just Eat Linker v0.1",
+        "User-Agent": f"WiiLink Just Eat Linker {linker_version}",
         "Content-Type": "application/x-www-form-urlencoded",
     }
 
@@ -35,7 +35,7 @@ def get_token(device_code: str):
         "https://sso.riiconnect24.net/application/o/token/", headers=headers, data=data
     )
     if resp.status_code != 200 and resp.status_code != 400:
-        raise TokenHTTPError(resp.status_code)
+        resp.raise_for_status()
 
     return resp.json()
 
