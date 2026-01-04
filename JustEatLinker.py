@@ -3,15 +3,21 @@
 #    nuitka-project: --standalone
 #    nuitka-project: --macos-create-app-bundle
 #    nuitka-project: --macos-app-icon={MAIN_DIRECTORY}/assets/logo.webp
+#    nuitka-project: --macos-app-version=1.0.0
 # nuitka-project-if: {OS} == "Windows":
 #    nuitka-project: --windows-icon-from-ico={MAIN_DIRECTORY}/assets/logo.webp
 #    nuitka-project: --windows-console-mode=disable
 # nuitka-project-if: {OS} in ("Linux", "FreeBSD", "OpenBSD"):
 #    nuitka-project: --onefile
 # These are standard options that are needed on all platforms.
+# nuitka-project: --product-version=1.0.0
+# nuitka-project: --copyright="© 2020-2026 WiiLink Team. All rights reserved."
 # nuitka-project: --plugin-enable=pyside6
+# nuitka-project: --include-package-data=PySide6:*.qm
 # nuitka-project: --include-data-dir={MAIN_DIRECTORY}/assets=assets
 # nuitka-project: --include-data-file={MAIN_DIRECTORY}/style.qss=style.qss
+# nuitka-project: --include-data-file={MAIN_DIRECTORY}/translations/*.qm=translations/
+# nuitka-project: --include-data-file={MAIN_DIRECTORY}/translations/languages.json=translations/languages.json
 
 import sys
 import datetime
@@ -24,7 +30,7 @@ from curl_cffi import requests
 from constants import file_path, linker_version
 from oauth import WiiLinkAccountPage, WiiNumberSelector
 from just_eat import JustEatCredentialsPage, CountrySelect, JustEat2FAPage
-from PySide6.QtCore import Qt, QTimer, QLocale
+from PySide6.QtCore import Qt, QTimer, QLocale, QLibraryInfo, QTranslator
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
     QWizard,
@@ -32,7 +38,7 @@ from PySide6.QtWidgets import (
     QApplication,
     QLabel,
     QVBoxLayout,
-    QMessageBox,
+    QMessageBox, QDialog, QComboBox, QPushButton,
 )
 
 
@@ -153,6 +159,9 @@ class JustEatLinker(QWizard):
         if "Nightly" not in linker_version and "RC" not in linker_version:
             self.check_for_updates()
 
+        self.language_selector = LanguageSelector()
+        self.translation_setup()
+
         self.setWindowTitle(self.tr("WiiLink Just Eat Linker"))
         self.setWizardStyle(QWizard.WizardStyle.ModernStyle)
         self.setSubTitleFormat(Qt.TextFormat.RichText)
@@ -173,6 +182,24 @@ class JustEatLinker(QWizard):
         self.setPage(6, FinalPage())
 
         self.setStartId(0)
+
+    def translation_setup(self):
+        """Static method to load patcher translations for the user's language if they exist
+
+        Returns:
+            None"""
+
+        self.language_selector.exec()
+
+        path = QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)
+        translator = QTranslator(app)
+        if translator.load(self.language, "qtbase", "_", path):
+            app.installTranslator(translator)
+
+        translator = QTranslator(app)
+        path = file_path.joinpath("translations").resolve().as_posix()
+        if translator.load(self.language, "translation", "_", path):
+            app.installTranslator(translator)
 
     def check_for_updates(self):
         """Static method to compare the current patcher version to the latest, and inform the user if they aren't up to date
@@ -221,6 +248,54 @@ Latest version: {latest_version}""",
                         "https://github.com/WiiLink24/JustEatLinker/releases/latest"
                     )
                     sys.exit()
+
+
+class LanguageSelector(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("WiiLink Just Eat Linker - Select Language")
+        self.setFixedWidth(450)
+        self.setFixedHeight(150)
+
+        # Set background color to match main app
+        stylesheet = file_path.joinpath("style.qss").read_text()
+        stylesheet = stylesheet.replace(
+            "%AssetsDir%",
+            file_path.joinpath("assets").resolve().as_posix(),
+        )
+        self.setStyleSheet(stylesheet)
+        self.layout = QVBoxLayout()
+
+        icon = QIcon(
+            file_path.joinpath("assets", "logo.webp").resolve().as_posix()
+        )
+        self.setWindowIcon(icon)
+
+        label = QLabel(
+            "Select the language you'd like to use the linker in from the list below:"
+        )
+        label.setWordWrap(True)
+        self.layout.addWidget(label)
+        language_json = file_path.joinpath("translations", "languages.json").read_text(
+            encoding="utf-8"
+        )
+        self.language_names = json.loads(language_json)
+
+        self.language_dropdown = QComboBox()
+        self.language_dropdown.addItems(self.language_names.keys())
+        self.layout.addWidget(self.language_dropdown)
+
+        done = QPushButton("Done")
+        done.clicked.connect(self.set_language)
+        self.layout.addWidget(done)
+
+        self.setLayout(self.layout)
+
+    def set_language(self):
+        selected_name = self.language_dropdown.currentText()
+        selected_language = self.language_names[selected_name]
+        JustEatLinker.language = QLocale(selected_language)
+        self.destroy()
 
 
 if __name__ == "__main__":
