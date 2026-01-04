@@ -16,7 +16,6 @@
 # nuitka-project: --include-package-data=PySide6:*.qm
 # nuitka-project: --include-data-dir={MAIN_DIRECTORY}/assets=assets
 # nuitka-project: --include-data-file={MAIN_DIRECTORY}/style.qss=style.qss
-# nuitka-project: --include-data-file={MAIN_DIRECTORY}/translations/*.qm=translations/
 # nuitka-project: --include-data-file={MAIN_DIRECTORY}/translations/languages.json=translations/languages.json
 
 import sys
@@ -38,7 +37,10 @@ from PySide6.QtWidgets import (
     QApplication,
     QLabel,
     QVBoxLayout,
-    QMessageBox, QDialog, QComboBox, QPushButton,
+    QMessageBox,
+    QDialog,
+    QComboBox,
+    QPushButton,
 )
 
 
@@ -266,9 +268,7 @@ class LanguageSelector(QDialog):
         self.setStyleSheet(stylesheet)
         self.layout = QVBoxLayout()
 
-        icon = QIcon(
-            file_path.joinpath("assets", "logo.webp").resolve().as_posix()
-        )
+        icon = QIcon(file_path.joinpath("assets", "logo.webp").resolve().as_posix())
         self.setWindowIcon(icon)
 
         label = QLabel(
