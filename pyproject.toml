@@ -6,5 +6,7 @@ files = [
     "JustEatLinker.py",
     "just_eat.py",
     "oauth.py",
+    "./translations/translation_de.ts",
+    "./translations/translation_es.ts",
     # Example language file: "./translations/translation_xx[_XX].ts"
 ]

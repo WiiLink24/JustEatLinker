@@ -1,0 +1,37 @@
+# Using code with permission from "update_translations.py" from NUSGet by NinjaCheetah
+# https://github.com/NinjaCheetah/NUSGet
+
+# This script exists to work around an issue in PySide6 where the "pyside6-project lupdate" command doesn't work as
+# expected, as it struggles to parse the paths in the .pyproject file. This does what it's meant to do for it.
+
+# Usage:
+# --clean: Remove obsolete strings from translation files
+
+import pathlib
+import tomllib
+import subprocess
+import sys
+
+LUPDATE_CMD = "pyside6-lupdate"
+
+pyproject_file = pathlib.Path("pyproject.toml")
+pyproject = tomllib.load(open(pyproject_file, "rb"))
+
+files = []
+for key in pyproject["tool"]["pyside6-project"]["files"]:
+    files.append(pathlib.Path(key))
+
+source_files = []
+ts_files = []
+for file in files:
+    if file.suffix == ".ts":
+        ts_files.append(file)
+    elif file.suffix == ".py" or file.suffix == ".ui":
+        source_files.append(file)
+
+for target in ts_files:
+    cmd = [LUPDATE_CMD] + [s for s in source_files]
+    if "--clean" in sys.argv:
+        cmd.append("-no-obsolete")
+    cmd.extend(["-ts", target])
+    subprocess.run(cmd, cwd=str(pyproject_file.parent))
