@@ -71,15 +71,11 @@ class IntroPage(QWizardPage):
             )
         )
 
-        self.label = QLabel(
-            self.tr(
-                """Welcome to the WiiLink Just Eat Linker!
+        self.label = QLabel(self.tr("""Welcome to the WiiLink Just Eat Linker!
 
 With this tool, you'll be able to link your WiiLink Account with Just Eat for use with the Demae Channel.
 
-Press 'Next' to get started!"""
-            )
-        )
+Press 'Next' to get started!"""))
         self.label.setWordWrap(True)
 
         self.layout = QVBoxLayout()

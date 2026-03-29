@@ -60,7 +60,9 @@ class WiiLinkAccountPage(QWizardPage):
         self.link = QLabel(
             self.tr(
                 "Visit <a href='{}?code={}'>{}</a> and enter the code below:</br></br>"
-            ).format(data["verification_uri"], data["user_code"], data['verification_uri'])
+            ).format(
+                data["verification_uri"], data["user_code"], data["verification_uri"]
+            )
         )
         self.link.setWordWrap(True)
         self.link.setOpenExternalLinks(True)
@@ -235,13 +237,11 @@ Message: {resp.text}""",
         if "wiis" not in resp["attributes"]:
             self.linked = False
             label = QLabel(
-                self.tr(
-                    """Currently, you have no Wiis linked to your account.<br><br>
+                self.tr("""Currently, you have no Wiis linked to your account.<br><br>
 
 Follow the guide at <a href='https://wiilink.ca/guide/accounts'>https://wiilink.ca/guide/accounts</a> to link your console.<br><br>
 
-Then, run this app again."""
-                )
+Then, run this app again.""")
             )
             label.setTextFormat(Qt.TextFormat.RichText)
             label.setWordWrap(True)
