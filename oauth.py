@@ -233,8 +233,7 @@ Message: {resp.text}""",
             return
 
         resp = resp.json()
-
-        if "wiis" not in resp["attributes"]:
+        if len(resp["attributes"]["wiis"]) == 0:
             self.linked = False
             label = QLabel(
                 self.tr("""Currently, you have no Wiis linked to your account.<br><br>
@@ -250,18 +249,18 @@ Then, run this app again.""")
             self.setLayout(self.layout)
             return
 
-        wii_nos = resp["attributes"]["wiis"]
-        for number in wii_nos:
-            wii_no_str = "{:016}".format(int(number))
+        wiis = resp["attributes"]["wiis"]
+        for wii in wiis:
+            wii_no_str = "{:016}".format(int(wii["wii_number"]))
             wii_no_str = "{}-{}-{}-{}".format(
                 wii_no_str[:4], wii_no_str[4:8], wii_no_str[8:12], wii_no_str[12:16]
             )
-            self.wii_no_dict.update({wii_no_str: number})
+            self.wii_no_dict.update({wii_no_str: wii["wii_number"]})
 
         box = QComboBox()
         box.addItems(self.wii_no_dict.keys())
         box.currentTextChanged.connect(self.number_changed)
-        self.wizard().setProperty("wii_no", wii_nos[0])
+        self.wizard().setProperty("wii_no", wiis[0]["wii_number"])
 
         self.layout.addWidget(box)
         self.setLayout(self.layout)
