@@ -1,9 +1,7 @@
 import time
 import sys
 import traceback
-
-from curl_cffi import requests
-from curl_cffi.requests.exceptions import HTTPError
+import requests
 
 from constants import linker_version
 from PySide6.QtWidgets import (
@@ -15,6 +13,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
 )
 from PySide6.QtCore import QThread, QObject, Signal, QTimer, Qt
+from requests.exceptions import HTTPError
 
 access_token = ""
 

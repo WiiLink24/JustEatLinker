@@ -25,8 +25,8 @@ import traceback
 import webbrowser
 import json
 import nodriver
+import requests
 
-from curl_cffi import requests
 from constants import file_path, linker_version
 from oauth import WiiLinkAccountPage, WiiNumberSelector
 from just_eat import JustEatCredentialsPage, CountrySelect

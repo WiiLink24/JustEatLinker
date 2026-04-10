@@ -1,6 +1,11 @@
 import asyncio
 import traceback
 import uuid
+import random
+import base64
+import json
+import time
+import requests
 import nodriver as uc
 
 from PySide6.QtWidgets import (
@@ -12,14 +17,8 @@ from PySide6.QtWidgets import (
     QMessageBox,
 )
 from PySide6.QtCore import QTimer, QObject, Signal, QThread
-from curl_cffi import requests
-from curl_cffi.requests.exceptions import HTTPError
+from requests.exceptions import HTTPError
 from constants import devices, linker_version
-
-import random
-import base64
-import json
-import time
 
 country = ""
 

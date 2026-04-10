@@ -1,5 +1,6 @@
+requests
 PySide6~=6.9.0
 black
 nuitka
 imageio
-curl_cffi
+nodriver
