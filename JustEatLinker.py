@@ -17,18 +17,19 @@
 # nuitka-project: --include-data-dir={MAIN_DIRECTORY}/assets=assets
 # nuitka-project: --include-data-file={MAIN_DIRECTORY}/style.qss=style.qss
 # nuitka-project: --include-data-file={MAIN_DIRECTORY}/translations/languages.json=translations/languages.json
-
+import os
 import sys
 import datetime
 import random
 import traceback
 import webbrowser
 import json
+import nodriver
 
 from curl_cffi import requests
 from constants import file_path, linker_version
 from oauth import WiiLinkAccountPage, WiiNumberSelector
-from just_eat import JustEatCredentialsPage, CountrySelect, JustEat2FAPage
+from just_eat import JustEatCredentialsPage, CountrySelect
 from PySide6.QtCore import Qt, QTimer, QLocale, QLibraryInfo, QTranslator
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
@@ -160,6 +161,25 @@ class JustEatLinker(QWizard):
         self.language_selector = LanguageSelector()
         self.translation_setup()
 
+        if not os.getenv("WIILINK_BROWSER_PATH"):
+            try:
+                nodriver.Config()
+            except FileNotFoundError:
+                QMessageBox.critical(
+                    self,
+                    self.tr("Browser not found"),
+                    self.tr(
+                        """To use this app, you need to have Chromium, Google Chrome, or Microsoft Edge installed.
+
+If you are on Linux, the browser also needs to be accessible on the system PATH.
+
+If you are using Linux and do not wish to install a browser as a system package, you can download and extract a browser, then pass the full path to this app with the environment variable `WIILINK_BROWSER_PATH`."""
+                    ),
+                )
+                sys.exit(1)
+        else:
+            self.setProperty("browser", os.getenv("WIILINK_BROWSER_PATH"))
+
         self.setWindowTitle(self.tr("WiiLink Just Eat Linker"))
         self.setWizardStyle(QWizard.WizardStyle.ModernStyle)
         self.setSubTitleFormat(Qt.TextFormat.RichText)
@@ -176,8 +196,7 @@ class JustEatLinker(QWizard):
         self.setPage(2, WiiNumberSelector())
         self.setPage(3, CountrySelect())
         self.setPage(4, JustEatCredentialsPage())
-        self.setPage(5, JustEat2FAPage())
-        self.setPage(6, FinalPage())
+        self.setPage(5, FinalPage())
 
         self.setStartId(0)
 
