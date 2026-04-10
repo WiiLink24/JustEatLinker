@@ -105,7 +105,7 @@ IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO 
         self.browser_worker = BrowserWorker()
 
     def initializePage(self):
-        QTimer.singleShot(0, self.disable_next_button)
+        QTimer.singleShot(0, self.disable_back_button)
 
         try:
             resp = requests.get(
@@ -120,8 +120,8 @@ IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO 
                 "WiiLink Just Eat Linker - Error",
                 f"""The linker was unable to get login information from WiiLink servers.
 
-        Received status code {resp.status_code}.
-        Response: {resp.text}""",
+Received status code {resp.status_code}.
+Response: {resp.text}""",
             )
             return
         except:
@@ -132,7 +132,7 @@ IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO 
                 "WiiLink Just Eat Linker - Error",
                 f"""The linker was unable to get login information from WiiLink servers.
 
-        {exception_traceback}""",
+{exception_traceback}""",
             )
             return
 
@@ -177,8 +177,8 @@ IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO 
                 "WiiLink Just Eat Linker - Error",
                 f"""The linker was unable to link your Just Eat account to your WiiLink account.
 
-            Received status code {resp.status_code}.
-            Response: {resp.text}""",
+Received status code {resp.status_code}.
+Response: {resp.text}""",
             )
             return
         except:
@@ -189,7 +189,7 @@ IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO 
                 "WiiLink Just Eat Linker - Error",
                 f"""The linker was unable to link your Just Eat account to your WiiLink account.
 
-            {exception_traceback}""",
+{exception_traceback}""",
             )
             return
 
@@ -197,8 +197,8 @@ IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO 
         self.completeChanged.emit()
         QTimer.singleShot(0, self.wizard().next)
 
-    def disable_next_button(self):
-        self.wizard().button(QWizard.WizardButton.NextButton).setEnabled(False)
+    def disable_back_button(self):
+        self.wizard().button(QWizard.WizardButton.BackButton).setEnabled(False)
 
     def isComplete(self):
         return self.login_complete
