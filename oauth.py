@@ -260,6 +260,7 @@ Then, run this app again.""")
         box.addItems(self.wii_no_dict.keys())
         box.currentTextChanged.connect(self.number_changed)
         self.wizard().setProperty("wii_no", wiis[0]["wii_number"])
+        self.wizard().setProperty("wii_no_fancy", box.currentText())
 
         self.layout.addWidget(box)
         self.setLayout(self.layout)
