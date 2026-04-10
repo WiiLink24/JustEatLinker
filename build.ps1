@@ -5,6 +5,12 @@ param(
 )
 
 $buildProject = {
+    Write-Host "Fixing nodriver network.py encoding..."
+    $NODRIVER_LOC = Invoke-Expression "python -c `"import site; print(site.getsitepackages()[-1] + '/nodriver/cdp/network.py')`""
+    Get-Content "$NODRIVER_LOC" | Set-Content -Encoding utf8 ".\network-fix.py"
+    Copy-Item -Path ".\network-fix.py" -Destination "$NODRIVER_LOC" -Force
+    Remove-Item -Path ".\network-fix.py"
+    
     Write-Host "Building Just Eat Linker..."
     pyside6-project build pyproject.toml
 
