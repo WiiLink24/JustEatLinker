@@ -81,7 +81,11 @@ Con esta herramienta, podrás vincular tu cuenta de WiiLink con Just Eat para po
 It will automatically close once login is completed.
 
 IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO FAIL.</source>
-        <translation type="unfinished"></translation>
+        <translation>En el navegador que se abrirá, inicia sesión en tu cuenta de Just Eat.
+
+Se cerrará automáticamente una vez hayas iniciado sesión.
+
+IMPORTANTE: NO REDIMENSIONES LA VENTANA DEL NAVEGADOR. ESTO PODRÍA CAUSAR UN ERROR EN EL PROCESO.</translation>
     </message>
 </context>
 <context>
@@ -89,7 +93,7 @@ IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO 
     <message>
         <location filename="../JustEatLinker.py" line="170"/>
         <source>Browser not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Navegador no encontrado</translation>
     </message>
     <message>
         <location filename="../JustEatLinker.py" line="177"/>
@@ -98,7 +102,11 @@ IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO 
 If you are on Linux, the browser also needs to be accessible on the system PATH.
 
 If you are using Linux and do not wish to install a browser as a system package, you can download and extract a browser, then pass the full path to this app with the environment variable `WIILINK_BROWSER_PATH`.</source>
-        <translation type="unfinished"></translation>
+        <translation>Para usar este programa, necesitas tener Chromium, Google Chrome o Microsoft Edge instalado.
+
+Si utilizas Linux, el navegador también debe ser accesible a través de la variable PATH del sistema.
+
+Si usas Linux y no quieres instalar un navegador como paquete del sistema, puedes descargar y extraer uno, y luego indicar la ruta completa a este programa mediante la variable de entorno &apos;WIILINK_BROWSER_PATH&apos;.</translation>
     </message>
     <message>
         <location filename="../JustEatLinker.py" line="183"/>
