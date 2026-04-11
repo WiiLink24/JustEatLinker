@@ -8,5 +8,6 @@ files = [
     "oauth.py",
     "./translations/translation_de.ts",
     "./translations/translation_es.ts",
+    "./translations/translation_it.ts",
     # Example language file: "./translations/translation_xx[_XX].ts"
 ]
