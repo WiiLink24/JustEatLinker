@@ -1,3 +1,4 @@
+import json
 import time
 import sys
 import traceback
@@ -232,7 +233,7 @@ Message: {resp.text}""",
             return
 
         resp = resp.json()
-        if len(resp["attributes"]["wiis"]) == 0:
+        if len(resp["attributes"]) == 0 or len(resp["attributes"]["wiis"]) == 0:
             self.linked = False
             label = QLabel(
                 self.tr("""Currently, you have no Wiis linked to your account.<br><br>
