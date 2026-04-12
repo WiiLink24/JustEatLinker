@@ -82,7 +82,11 @@ Premi &apos;Avanti&apos; per iniziare!
 It will automatically close once login is completed.
 
 IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO FAIL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Effettuare il login con il tuo account Just Eat nella finestra del browser.
+
+La finestra si chiuderà al completamento del login.
+
+IMPORTANTE - NON RIDIMENSIONARE LA FINESTRA DEL BROWSER. FARLO POTREBBE INTERROMPERE IL LOGIN.</translation>
     </message>
 </context>
 <context>
@@ -90,7 +94,7 @@ IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO 
     <message>
         <location filename="../JustEatLinker.py" line="170"/>
         <source>Browser not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Browser non identificato</translation>
     </message>
     <message>
         <location filename="../JustEatLinker.py" line="177"/>
@@ -99,7 +103,11 @@ IMPORTANT - DO NOT RESIZE THE BROWSER WINDOW. DOING SO CAN CAUSE THE PROCESS TO 
 If you are on Linux, the browser also needs to be accessible on the system PATH.
 
 If you are using Linux and do not wish to install a browser as a system package, you can download and extract a browser, then pass the full path to this app with the environment variable `WIILINK_BROWSER_PATH`.</source>
-        <translation type="unfinished"></translation>
+        <translation>Per usare questa applicazione, è necessario disporre di Chromium, Google Chrome o Microsoft Edge. 
+
+Su Linux, è inoltre necessario che il programma sia accessibile dalla variabile di sistema PATH.
+
+Su Linux, qualora non si volesse installare il browser come pacchetto di sistema, è possibile installare ed estrarre un browser e trasferire l&apos;intero percorso a questa applicazione con la variabile di ambiente &quot;WIILINK_BROWSER_PATH&quot;.</translation>
     </message>
     <message>
         <location filename="../JustEatLinker.py" line="183"/>
