@@ -3,14 +3,14 @@
 #    nuitka-project: --standalone
 #    nuitka-project: --macos-create-app-bundle
 #    nuitka-project: --macos-app-icon={MAIN_DIRECTORY}/assets/logo.webp
-#    nuitka-project: --macos-app-version=1.0.0
+#    nuitka-project: --macos-app-version=1.0.1
 # nuitka-project-if: {OS} == "Windows":
 #    nuitka-project: --windows-icon-from-ico={MAIN_DIRECTORY}/assets/logo.webp
 #    nuitka-project: --windows-console-mode=disable
 # nuitka-project-if: {OS} in ("Linux", "FreeBSD", "OpenBSD"):
 #    nuitka-project: --onefile
 # These are standard options that are needed on all platforms.
-# nuitka-project: --product-version=1.0.0
+# nuitka-project: --product-version=1.0.1
 # nuitka-project: --copyright="© 2020-2026 WiiLink Team. All rights reserved."
 # nuitka-project: --plugin-enable=pyside6
 # nuitka-project: --include-package-data=PySide6:*.qm
@@ -55,7 +55,7 @@ def get_latest_version() -> str:
     api_response_raw = requests.get(api_url)
     api_response_raw.raise_for_status()
 
-    api_response = json.loads(api_response_raw)
+    api_response = api_response_raw.json()
 
     latest_version = api_response["tag_name"].replace("v", "")
 
