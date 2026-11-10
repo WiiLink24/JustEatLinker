@@ -22,7 +22,7 @@ access_token = ""
 def get_token(device_code: str):
     data = {
         "grant_type": "urn:ietf:params:oauth:grant-type:device_code",
-        "client_id": "ChGKaNcTcArxLCWSxAbvXXtbWKsM1xcy6x7k8ssn",
+        "client_id": "JTGHMW7hsYc4FwL6rkVZz1DPFHLuOwwc8Uy3BUzy",
         "device_code": device_code,
     }
 
@@ -119,7 +119,7 @@ class WiiLinkAccountPage(QWizardPage):
 
     def get_verification_url(self):
         data = {
-            "client_id": "ChGKaNcTcArxLCWSxAbvXXtbWKsM1xcy6x7k8ssn",
+            "client_id": "JTGHMW7hsYc4FwL6rkVZz1DPFHLuOwwc8Uy3BUzy",
             "scope": "openid email profile goauthentik.io/api",
         }
 
