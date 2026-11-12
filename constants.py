@@ -2,7 +2,7 @@ import pathlib
 
 file_path = pathlib.Path(__file__).parent
 
-linker_version = "1.0.1"
+linker_version = "1.0.2"
 
 devices = [
     "SM-F946B",

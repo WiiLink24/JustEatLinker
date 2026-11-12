@@ -94,6 +94,7 @@ class WiiLinkAccountPage(QWizardPage):
 
         self.logic_worker.moveToThread(self.logic_thread)
         self.logic_thread.started.connect(self.logic_worker.poll_device_page)
+        self.logic_worker.error.connect(self.handle_error)
 
         self.logic_worker.finished.connect(self.logic_finished)
         self.logic_worker.finished.connect(self.logic_thread.quit)
@@ -110,6 +111,13 @@ class WiiLinkAccountPage(QWizardPage):
         self.completeChanged.emit()
         self.wizard().setProperty("access_token", access_token)
         QTimer.singleShot(0, self.wizard().next)
+
+    def handle_error(self, error: str):
+        QMessageBox.critical(
+            self,
+            "WiiLink Just Eat Linker - Error",
+            f"An error occurred while talking to WiiLink servers.<br><pre>{error}</pre><br>If you need help, head over to the WiiLink Discord Server (<a href='https://discord.gg/wiilink'>discord.gg/wiilink</a>).",
+        )
 
     def disable_back_button(self):
         self.wizard().button(QWizard.WizardButton.BackButton).setEnabled(False)
@@ -171,16 +179,18 @@ class AccountConnector(QObject):
     def poll_device_page(self):
         while True:
             data = get_token(self.device_code)
-            try:
-                if data["error"] == "authorization_pending":
-                    time.sleep(self.interval)
-            except KeyError:
+            error = data.get("error", "")
+            if error == "authorization_pending":
+                time.sleep(self.interval)
+            elif error != "":
+                self.error.emit(error)
+                return
+            else:
                 # If this happens we are logged in.
                 global access_token
                 access_token = data["access_token"]
-                break
-
-        self.finished.emit(True)
+                self.finished.emit(True)
+                return
 
 
 class WiiNumberSelector(QWizardPage):
